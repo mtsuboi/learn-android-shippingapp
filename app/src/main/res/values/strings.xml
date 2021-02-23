@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">ShippingApp</string>
+    <string name="empty"></string>
+    <string name="order_id_message">受注IDを入力してください</string>
+    <string name="button_confirm">確認</string>
+    <string name="result_message_empty"></string>
+    <string name="result_message_shipping">出荷したらボタンをタップ！</string>
+    <string name="result_message_shipped">出荷済み。取り消しますか？</string>
+    <string name="result_message_canceled">キャンセル済みです</string>
+    <string name="result_message_no_data_found">エラーか受注が見つかりません</string>
+    <string name="customer_name_label">顧客名</string>
+    <string name="order_date_label">受注日</string>
+    <string name="order_status_label">ステータス</string>
+    <string name="button_change_status_shipped">出荷完了</string>
+    <string name="button_change_status_cancel">出荷取消</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
