@@ -1,22 +1,33 @@
-package com.example.shippingapp.presenter;
+package com.example.shippingapp.shipping;
 
 import android.os.Handler;
 import android.os.Looper;
 
-import androidx.annotation.StringRes;
-
 import com.example.shippingapp.R;
-import com.example.shippingapp.fragment.ShippingFragment;
 import com.example.shippingapp.model.Order;
 import com.example.shippingapp.network.OrderAccess;
 
-public class ShippingPresenter {
-
-    private ShippingFragment mShippingView;
+public class ShippingPresenter implements ShippingContract.Presenter {
+    private ShippingContract.View mShippingView;
     private OrderAccess orderAccess;
 
+    public ShippingPresenter(ShippingContract.View mShippingView, OrderAccess orderAccess) {
+        this.mShippingView = mShippingView;
+        this.orderAccess = orderAccess;
+        mShippingView.setPresenter(this);
+    }
+
+    @Override
+    public void start() {
+        // ここでは何もしない
+    }
+
     // 受注を取得してビューに表示する
+    @Override
     public void getOrder(String orderId) {
+        // ローディングインジケータ表示
+        mShippingView.setLoadingIndicator(true);
+
         // ワーカースレッドのコールバックメソッドでUIスレッドにアクセスするためのハンドラ
         Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -47,6 +58,9 @@ public class ShippingPresenter {
                                 mShippingView.hideButton();
                                 break;
                         }
+
+                        // ローディングインジケータ非表示
+                        mShippingView.setLoadingIndicator(false);
                     }
                 });
             }
@@ -60,27 +74,11 @@ public class ShippingPresenter {
                         // 画面をクリアしてエラーメッセージを表示
                         mShippingView.showEmpty();
                         mShippingView.showMessage(R.string.result_message_no_data_found);
+                        // ローディングインジケータ非表示
+                        mShippingView.setLoadingIndicator(false);
                     }
                 });
             }
         });
     }
-
-    public void setView(ShippingFragment view) {
-        this.mShippingView = view;
-    }
-
-    public void setOrderAccess(OrderAccess orderAccess) {
-        this.orderAccess = orderAccess;
-    }
-
-    // Viewのインタフェース
-    public interface View {
-        public void showEmpty();
-        public void showOrder(final Order order);
-        public void showMessage(final @StringRes int messageId);
-        public void showButton(final @StringRes int buttonStringId);
-        public void hideButton();
-    }
-
 }

@@ -1,4 +1,4 @@
-package com.example.shippingapp.fragment;
+package com.example.shippingapp.shipping;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,13 +13,12 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.shippingapp.R;
-import com.example.shippingapp.presenter.ShippingPresenter;
 
 public class EntryOrderIdFragment extends Fragment {
-
-    private ShippingPresenter shippingPresenter;
+    private static final String CURRENT_ORDER_ID = "CURRENT_ORDER_ID";
 
     private EditText mEditOrderId;
     private Button mButtonConfirm;
@@ -43,15 +42,22 @@ public class EntryOrderIdFragment extends Fragment {
                 hideSoftKeyboard(v);
 
                 // 受注を取得
-                shippingPresenter.getOrder(mEditOrderId.getText().toString());
+                ShippingActivity shippingActivity = (ShippingActivity) getActivity();
+                shippingActivity.getOrder(mEditOrderId.getText().toString());
             }
         });
+
+        if(savedInstanceState != null) {
+            mEditOrderId.setText(savedInstanceState.getString(CURRENT_ORDER_ID), EditText.BufferType.NORMAL);
+        }
 
         return root;
     }
 
-    public void setShippingPresenter(ShippingPresenter shippingPresenter) {
-        this.shippingPresenter = shippingPresenter;
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        outState.putString(CURRENT_ORDER_ID, mEditOrderId.getText().toString());
+        super.onSaveInstanceState(outState);
     }
 
     private void hideSoftKeyboard(View view) {
