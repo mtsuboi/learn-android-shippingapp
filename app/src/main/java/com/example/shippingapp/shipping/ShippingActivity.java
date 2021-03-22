@@ -7,12 +7,25 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import com.example.shippingapp.R;
+import com.example.shippingapp.network.HttpRequestInterceptor;
 import com.example.shippingapp.network.OrderAccessImpl;
 
-public class ShippingActivity extends AppCompatActivity {
-    private static final String CURRENT_ORDER_ID = "CURRENT_ORDER_ID";
+import javax.inject.Inject;
 
-    private ShippingPresenter mShippingPresenter;
+import dagger.Lazy;
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
+public class ShippingActivity extends AppCompatActivity {
+
+    @Inject
+    public HttpRequestInterceptor mHttpRequestInterceptor;
+
+    @Inject
+    public ShippingContract.Presenter mShippingPresenter;
+
+    @Inject
+    Lazy<ShippingFragment> shippingFragmentProvider;
 
     private ProgressBar mLoadingIndicator;
 
@@ -33,15 +46,21 @@ public class ShippingActivity extends AppCompatActivity {
         // 出荷フラグメントを作成
         ShippingFragment shippingFragment = (ShippingFragment) getSupportFragmentManager().findFragmentById(R.id.frame_shipping);
         if(shippingFragment == null) {
-            shippingFragment = ShippingFragment.newInstance();
+            // shippingFragment = ShippingFragment.newInstance();
+            shippingFragment = shippingFragmentProvider.get();
             getSupportFragmentManager().beginTransaction().add(R.id.frame_shipping, shippingFragment).commit();
         }
 
-        // Daggerが難しいのでとりあえず手動でインスタンスを注入する
+        // Daggerが難しいのでとりあえず手動でインスタンスを注入する⇒Dagger化に伴いコメントアウト）
         // 受注アクセスのインスタンスを作成
-        OrderAccessImpl orderAccess = new OrderAccessImpl();
+        // OrderAccessImpl orderAccess = new OrderAccessImpl();
         // 出荷プレゼンターのインスタンスを作成（フラグメントと受注アクセスのインスタンスを注入）
-        mShippingPresenter = new ShippingPresenter(shippingFragment, orderAccess);
+        // mShippingPresenter = new ShippingPresenter(shippingFragment, orderAccess);
+
+        // OkHttpのインターセプターにBaseUrlと認証情報セット
+        // 最終的には設定ファイルから取得する予定
+        mHttpRequestInterceptor.setBaseUrl("http://10.0.2.2:8080");
+        mHttpRequestInterceptor.setUserPassword("mtsuboi", "mtsuboipass");
 
     }
 

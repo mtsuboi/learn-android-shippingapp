@@ -14,6 +14,11 @@ import androidx.fragment.app.Fragment;
 import com.example.shippingapp.R;
 import com.example.shippingapp.model.Order;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class ShippingFragment extends Fragment implements ShippingContract.View {
     private static final String STATE_RESULT_MESSAGE = "STATE_RESULT_MESSAGE";
     private static final String STATE_ORDER_ID = "STATE_ORDER_ID";
@@ -23,7 +28,8 @@ public class ShippingFragment extends Fragment implements ShippingContract.View 
     private static final String STATE_BUTTON_TEXT = "STATE_BUTTON_TEXT";
     private static final String STATE_BUTTON_VISIBLE = "STATE_BUTTON_VISIBLE";
 
-    private ShippingContract.Presenter mPresenter;
+    @Inject
+    public ShippingContract.Presenter mPresenter;
 
     private TextView mResultMessage;
     private TextView mOrderId;
@@ -32,7 +38,22 @@ public class ShippingFragment extends Fragment implements ShippingContract.View 
     private TextView mOrderStatus;
     private Button mButtonChangeStatus;
 
-    public static ShippingFragment newInstance() { return new ShippingFragment(); }
+    @Inject
+    public ShippingFragment() {}
+
+    //public static ShippingFragment newInstance() { return new ShippingFragment(); }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mPresenter.takeView(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mPresenter.dropView();
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

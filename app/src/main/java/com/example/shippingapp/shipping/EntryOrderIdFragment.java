@@ -17,15 +17,15 @@ import android.widget.TextView;
 
 import com.example.shippingapp.R;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 public class EntryOrderIdFragment extends Fragment {
     private static final String CURRENT_ORDER_ID = "CURRENT_ORDER_ID";
 
     private EditText mEditOrderId;
     private Button mButtonConfirm;
 
-    public static EntryOrderIdFragment newInstance() {
-        return new EntryOrderIdFragment();
-    }
+    public static EntryOrderIdFragment newInstance() { return new EntryOrderIdFragment(); }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

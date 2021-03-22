@@ -16,7 +16,7 @@ public interface ShippingContract {
         public void hideButton();
     }
 
-    public interface Presenter extends BasePresenter {
+    public interface Presenter extends BasePresenter<View> {
         public void getOrder(final String orderId);
     }
 }

@@ -12,34 +12,41 @@ import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.time.LocalDate;
 
+import javax.inject.Inject;
+
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
 public class OrderAccessImpl implements OrderAccess{
 
+    @Inject
+    public OkHttpClient mClient;
+
+    @Inject
+    public Moshi mMoshi;
+
+    @Inject
+    public OrderAccessImpl() {}
+
     @Override
     public void findById(String orderId, OrderAccessCallback callback) {
         // リクエストURLとパラメータ
-        String url = "http://10.0.2.2:8080/orderService/findById";
+        String url = "https://hostname/orderService/findById";
         String queryString="?orderId=" + orderId;
 
         // HTTPクライアントオブジェクト作成
-        OkHttpClient client = new OkHttpClient();
+        // OkHttpClient client = new OkHttpClient();
 
         // 送信用リクエスト作成
         Request request = new Request.Builder()
                 .url(url + queryString)
-                .header("Authorization",
-                        Credentials.basic("mtsuboi","mtsuboipass"))
                 .get().build();
-        Log.i("request", request.url().toString());
 
         // リクエスト送信
-        client.newCall(request).enqueue(new Callback() {
+        mClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(@NotNull Call call, @NotNull IOException e) {
                 callback.onFailure();
@@ -55,8 +62,8 @@ public class OrderAccessImpl implements OrderAccess{
                 }
 
                 // レスポンスのJSONをOrderオブジェクトに変換してonSuccessをコールバック
-                Moshi moshi = new Moshi.Builder().add(LocalDate.class, new LocalDateJsonAdapter()).build();
-                JsonAdapter<Order> jsonAdapter = moshi.adapter(Order.class);
+                // Moshi moshi = new Moshi.Builder().add(LocalDate.class, new LocalDateJsonAdapter()).build();
+                JsonAdapter<Order> jsonAdapter = mMoshi.adapter(Order.class);
                 try {
                     Order order = jsonAdapter.fromJson(responseBody);
                     callback.onSuccess(order);

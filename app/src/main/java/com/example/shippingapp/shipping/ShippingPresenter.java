@@ -7,20 +7,16 @@ import com.example.shippingapp.R;
 import com.example.shippingapp.model.Order;
 import com.example.shippingapp.network.OrderAccess;
 
+import javax.inject.Inject;
+
 public class ShippingPresenter implements ShippingContract.Presenter {
     private ShippingContract.View mShippingView;
-    private OrderAccess orderAccess;
 
-    public ShippingPresenter(ShippingContract.View mShippingView, OrderAccess orderAccess) {
-        this.mShippingView = mShippingView;
-        this.orderAccess = orderAccess;
-        mShippingView.setPresenter(this);
-    }
+    @Inject
+    public OrderAccess mOrderAccess;
 
-    @Override
-    public void start() {
-        // ここでは何もしない
-    }
+    @Inject
+    public ShippingPresenter() {}
 
     // 受注を取得してビューに表示する
     @Override
@@ -32,7 +28,7 @@ public class ShippingPresenter implements ShippingContract.Presenter {
         Handler mainHandler = new Handler(Looper.getMainLooper());
 
         // 受注IDで受注を検索
-        orderAccess.findById(orderId, new OrderAccess.OrderAccessCallback() {
+        mOrderAccess.findById(orderId, new OrderAccess.OrderAccessCallback() {
             @Override
             public void onSuccess(Order order) {
                 // 受注が取得できたらUIスレッドで受注を表示
@@ -80,5 +76,15 @@ public class ShippingPresenter implements ShippingContract.Presenter {
                 });
             }
         });
+    }
+
+    @Override
+    public void takeView(ShippingContract.View view) {
+        this.mShippingView = view;
+    }
+
+    @Override
+    public void dropView() {
+        this.mShippingView = null;
     }
 }
