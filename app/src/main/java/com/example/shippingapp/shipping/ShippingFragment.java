@@ -41,7 +41,7 @@ public class ShippingFragment extends Fragment implements ShippingContract.View 
     @Inject
     public ShippingFragment() {}
 
-    //public static ShippingFragment newInstance() { return new ShippingFragment(); }
+//public static ShippingFragment newInstance() { return new ShippingFragment(); }
 
     @Override
     public void onResume() {

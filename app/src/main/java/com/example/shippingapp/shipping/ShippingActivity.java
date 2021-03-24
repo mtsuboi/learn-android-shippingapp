@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class ShippingActivity extends AppCompatActivity {
-
+    // Activityはコンストラクターインジェクションができないので、フィールドインジェクションする
     @Inject
     public HttpRequestInterceptor mHttpRequestInterceptor;
 
@@ -25,7 +25,7 @@ public class ShippingActivity extends AppCompatActivity {
     public ShippingContract.Presenter mShippingPresenter;
 
     @Inject
-    Lazy<ShippingFragment> shippingFragmentProvider;
+    public Lazy<ShippingFragment> shippingFragmentProvider;
 
     private ProgressBar mLoadingIndicator;
 

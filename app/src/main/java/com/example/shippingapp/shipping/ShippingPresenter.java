@@ -12,11 +12,12 @@ import javax.inject.Inject;
 public class ShippingPresenter implements ShippingContract.Presenter {
     private ShippingContract.View mShippingView;
 
-    @Inject
-    public OrderAccess mOrderAccess;
+    private OrderAccess mOrderAccess;
 
     @Inject
-    public ShippingPresenter() {}
+    public ShippingPresenter(OrderAccess orderAccess) {
+        this.mOrderAccess = orderAccess;
+    }
 
     // 受注を取得してビューに表示する
     @Override
