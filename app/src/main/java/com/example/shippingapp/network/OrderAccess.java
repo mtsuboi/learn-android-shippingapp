@@ -2,13 +2,9 @@ package com.example.shippingapp.network;
 
 import com.example.shippingapp.model.Order;
 
-public interface OrderAccess {
-    // コールバック用インタフェース
-    public interface OrderAccessCallback {
-        void onSuccess(Order order);
-        void onFailure();
-    }
+import io.reactivex.rxjava3.core.Single;
 
+public interface OrderAccess {
     // 受注をOrder_idで検索する
-    public void findById(final String orderId, final OrderAccessCallback callback);
+    public Single<Order> findById(final String orderId);
 }

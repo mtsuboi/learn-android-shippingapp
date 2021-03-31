@@ -35,16 +35,13 @@ public class EntryOrderIdFragment extends Fragment {
         mButtonConfirm = (Button) root.findViewById(R.id.button_confirm);
 
         // 確認ボタン押下時
-        mButtonConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // ソフトキーボードを閉じる
-                hideSoftKeyboard(v);
+        mButtonConfirm.setOnClickListener(v -> {
+            // ソフトキーボードを閉じる
+            hideSoftKeyboard(v);
 
-                // 受注を取得
-                ShippingActivity shippingActivity = (ShippingActivity) getActivity();
-                shippingActivity.getOrder(mEditOrderId.getText().toString());
-            }
+            // 受注を取得
+            ShippingActivity shippingActivity = (ShippingActivity) getActivity();
+            shippingActivity.getOrder(mEditOrderId.getText().toString());
         });
 
         if(savedInstanceState != null) {

@@ -71,11 +71,8 @@ public class ShippingFragment extends Fragment implements ShippingContract.View 
         showEmpty();
 
         // ステータス更新ボタン押下時
-        mButtonChangeStatus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        mButtonChangeStatus.setOnClickListener(v ->  {
                 // ステータス更新処理
-            }
         });
 
         if(savedInstanceState != null) {
