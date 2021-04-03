@@ -1,21 +1,12 @@
 package com.example.shippingapp.shipping;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
-
 import com.example.shippingapp.R;
-import com.example.shippingapp.model.Order;
 import com.example.shippingapp.network.OrderAccess;
 
 import javax.inject.Inject;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.core.SingleOnSubscribe;
 import io.reactivex.rxjava3.disposables.Disposable;
-import io.reactivex.rxjava3.observers.DisposableSingleObserver;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class ShippingPresenter implements ShippingContract.Presenter {

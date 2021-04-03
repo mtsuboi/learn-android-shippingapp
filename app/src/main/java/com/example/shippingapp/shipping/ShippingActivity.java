@@ -8,7 +8,6 @@ import android.widget.ProgressBar;
 
 import com.example.shippingapp.R;
 import com.example.shippingapp.network.HttpRequestInterceptor;
-import com.example.shippingapp.network.OrderAccessImpl;
 
 import javax.inject.Inject;
 
