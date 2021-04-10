@@ -10,26 +10,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.shippingapp.R;
-import com.example.shippingapp.model.Order;
+import com.example.shippingapp.constraints.ShippingConfirmResult;
+import com.example.shippingapp.constraints.ShippingOperation;
 
-import javax.inject.Inject;
+public class ShippingFragment extends Fragment {
 
-import dagger.hilt.android.AndroidEntryPoint;
-
-@AndroidEntryPoint
-public class ShippingFragment extends Fragment implements ShippingContract.View {
-    private static final String STATE_RESULT_MESSAGE = "STATE_RESULT_MESSAGE";
-    private static final String STATE_ORDER_ID = "STATE_ORDER_ID";
-    private static final String STATE_CUSTOMER_NAME = "STATE_CUSTOMER_NAME";
-    private static final String STATE_ORDER_DATE = "STATE_ORDER_DATE";
-    private static final String STATE_ORDER_STATUS = "STATE_ORDER_STATUS";
-    private static final String STATE_BUTTON_TEXT = "STATE_BUTTON_TEXT";
-    private static final String STATE_BUTTON_VISIBLE = "STATE_BUTTON_VISIBLE";
-
-    @Inject
-    public ShippingContract.Presenter mPresenter;
+    private ShippingViewModel mShippingViewModel;
 
     private TextView mResultMessage;
     private TextView mOrderId;
@@ -38,22 +27,7 @@ public class ShippingFragment extends Fragment implements ShippingContract.View 
     private TextView mOrderStatus;
     private Button mButtonChangeStatus;
 
-    @Inject
-    public ShippingFragment() {}
-
-//public static ShippingFragment newInstance() { return new ShippingFragment(); }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mPresenter.takeView(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mPresenter.dropView();
-    }
+    public static ShippingFragment newInstance() { return new ShippingFragment(); }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -67,83 +41,55 @@ public class ShippingFragment extends Fragment implements ShippingContract.View 
         mOrderStatus = (TextView) root.findViewById(R.id.order_status);
         mButtonChangeStatus = (Button) root.findViewById(R.id.button_change_status);
 
-        // 画面初期化
-        showEmpty();
+        // ビューモデルのインスタンスを取得(ViewModelはViewModelProviderを介してインスタンス取得する。@Injectでのインジェクションはエラーになる)
+        mShippingViewModel = new ViewModelProvider(this.getActivity()).get(ShippingViewModel.class);
+        // ビューモデルのshippingUIを監視して、変更をUIに反映させる。（変更またはLifecycleイベントで反応）
+        mShippingViewModel.getShippingUI().observe(getViewLifecycleOwner(), shippingUI -> updateShippingUI(shippingUI));
 
         // ステータス更新ボタン押下時
         mButtonChangeStatus.setOnClickListener(v ->  {
-                // ステータス更新処理
+            // ステータス更新処理
         });
-
-        if(savedInstanceState != null) {
-            restoreSavingState(savedInstanceState);
-        }
 
         return root;
     }
 
-    private void restoreSavingState(Bundle savedInstanceState) {
-        mResultMessage.setText(savedInstanceState.getString(STATE_RESULT_MESSAGE), TextView.BufferType.NORMAL);
-        mOrderId.setText(savedInstanceState.getString(STATE_ORDER_ID), TextView.BufferType.NORMAL);
-        mCusomerName.setText(savedInstanceState.getString(STATE_CUSTOMER_NAME), TextView.BufferType.NORMAL);
-        mOrderDate.setText(savedInstanceState.getString(STATE_ORDER_DATE), TextView.BufferType.NORMAL);
-        mOrderStatus.setText(savedInstanceState.getString(STATE_ORDER_STATUS), TextView.BufferType.NORMAL);
-        mButtonChangeStatus.setText(savedInstanceState.getString(STATE_BUTTON_TEXT));
-        mButtonChangeStatus.setVisibility(savedInstanceState.getInt(STATE_BUTTON_VISIBLE));
+    public void updateShippingUI(ShippingUI shippingUI) {
+        // shippingUIで受け取ったフィールドををFragmentに反映させる
+        mResultMessage.setText(getResultMessage(shippingUI.getShippingConfirmResult()));
+        mOrderId.setText(shippingUI.getOrderId()==null ? "" : shippingUI.getOrderId());
+        mCusomerName.setText(shippingUI.getCustomerName()==null ? "" : shippingUI.getCustomerName());
+        mOrderDate.setText(shippingUI.getOrderDate()==null ? "" : shippingUI.getOrderDate().toString());
+        mOrderStatus.setText(shippingUI.getOrderStatus()==null ? "" : shippingUI.getOrderStatus().getText());
+        mButtonChangeStatus.setText(getButtonText(shippingUI.getShippingOperation()));
+        mButtonChangeStatus.setVisibility(getButtonText(shippingUI.getShippingOperation())==R.string.empty ? View.INVISIBLE : View.VISIBLE);
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putString(STATE_RESULT_MESSAGE, mResultMessage.getText().toString());
-        outState.putString(STATE_ORDER_ID, mOrderId.getText().toString());
-        outState.putString(STATE_CUSTOMER_NAME, mCusomerName.getText().toString());
-        outState.putString(STATE_ORDER_DATE, mOrderDate.getText().toString());
-        outState.putString(STATE_ORDER_STATUS, mOrderStatus.getText().toString());
-        outState.putString(STATE_BUTTON_TEXT, mButtonChangeStatus.getText().toString());
-        outState.putInt(STATE_BUTTON_VISIBLE, mButtonChangeStatus.getVisibility());
-        super.onSaveInstanceState(outState);
+    private int getResultMessage(ShippingConfirmResult shippingConfirmResult) {
+        // 確認結果によりメッセージを返す
+        switch (shippingConfirmResult) {
+            case SHIPPING:
+                return R.string.result_message_shipping;
+            case SHIPPED:
+                return R.string.result_message_shipped;
+            case CANCELED:
+                return R.string.result_message_canceled;
+            case NO_DATA_FOUND:
+            default:
+                return R.string.result_message_no_data_found;
+        }
     }
 
-    @Override
-    public void showEmpty() {
-        mResultMessage.setText(R.string.empty);
-        mOrderId.setText(R.string.empty);
-        mCusomerName.setText(R.string.empty);
-        mOrderDate.setText(R.string.empty);
-        mOrderStatus.setText(R.string.empty);
-        hideButton();
+    private int getButtonText(ShippingOperation shippingOperation) {
+        // 確認結果によりボタンテキストを返す
+        switch (shippingOperation) {
+            case SHIP:
+                return R.string.button_change_status_shipped;
+            case CANCEL_SHIPPING:
+                return R.string.button_change_status_cancel;
+            case NONE:
+            default:
+                return R.string.empty;
+        }
     }
-
-    @Override
-    public void showOrder(Order order) {
-        mOrderId.setText(order.getOrderId());
-        mCusomerName.setText(order.getCustomerName());
-        mOrderDate.setText(order.getOrderDate().toString());
-        mOrderStatus.setText(order.getOrderStatus().getText());
-    }
-
-    @Override
-    public void showMessage(int messageId) {
-        mResultMessage.setText(messageId);
-    }
-
-    @Override
-    public void showButton(int buttonStringId) {
-        mButtonChangeStatus.setText(buttonStringId);
-        mButtonChangeStatus.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void hideButton() {
-        mButtonChangeStatus.setVisibility(View.INVISIBLE);
-    }
-
-    @Override
-    public void setLoadingIndicator(boolean active) {
-        ShippingActivity shippingActivity = (ShippingActivity) getActivity();
-        shippingActivity.setLoadingIndicator(active);
-    }
-
-    @Override
-    public void setPresenter(ShippingContract.Presenter presenter) { this.mPresenter = presenter; }
 }

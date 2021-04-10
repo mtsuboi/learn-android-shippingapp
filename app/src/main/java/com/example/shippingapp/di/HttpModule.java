@@ -9,12 +9,11 @@ import java.time.LocalDate;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ActivityComponent;
-import dagger.hilt.android.scopes.ActivityScoped;
+import dagger.hilt.components.SingletonComponent;
 import okhttp3.OkHttpClient;
 
 @Module
-@InstallIn(ActivityComponent.class)
+@InstallIn(SingletonComponent.class)
 public class HttpModule {
 
     @Provides
