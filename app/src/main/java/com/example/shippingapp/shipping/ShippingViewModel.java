@@ -17,7 +17,11 @@ import io.reactivex.rxjava3.schedulers.Schedulers;
 
 @HiltViewModel
 public class ShippingViewModel extends ViewModel {
+    // ローディングの状態（データのローディング中はtrue）
     private final MutableLiveData<Boolean> mLoading = new MutableLiveData<>();
+    // 入力用の受注ID（ここに受注IDをセットしてgetOrderメソッドを呼ぶ）
+    private final MutableLiveData<String> mEntryOrderId = new MutableLiveData<>();
+    // 出荷UIモデル
     private final MutableLiveData<ShippingUI> mShippingUI = new MutableLiveData<>();
 
     private OrderAccess mOrderAccess;
@@ -28,9 +32,9 @@ public class ShippingViewModel extends ViewModel {
     }
 
     // 受注を取得
-    public void getOrder(String orderId) {
+    public void getOrder() {
         // 受注IDで受注を検索
-        mOrderAccess.findById(orderId)
+        mOrderAccess.findById(mEntryOrderId.getValue())
             .subscribeOn(Schedulers.io()) // 送信側はスレッドプールで処理する
             .observeOn(AndroidSchedulers.mainThread()) // 受信側はメインスレッドで処理する
             .doOnSubscribe(disposable -> mLoading.setValue(true)) // 開始時にローディングインジケータ表示
@@ -86,8 +90,14 @@ public class ShippingViewModel extends ViewModel {
         return shippingUI;
     }
 
+    // 単方向データバインディングの場合はLiveDataで渡す
     public LiveData<Boolean> getLoading() {
         return mLoading;
+    }
+
+    // 双方向データバインディングの場合はMutableLiveDataで渡す
+    public MutableLiveData<String> getEntryOrderId() {
+        return mEntryOrderId;
     }
 
     public LiveData<ShippingUI> getShippingUI() {

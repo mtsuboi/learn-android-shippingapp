@@ -9,23 +9,17 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.BindingAdapter;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.shippingapp.R;
 import com.example.shippingapp.constraints.ShippingConfirmResult;
 import com.example.shippingapp.constraints.ShippingOperation;
+import com.example.shippingapp.databinding.FragmentShippingBinding;
 
 public class ShippingFragment extends Fragment {
-
-    private ShippingViewModel mShippingViewModel;
-
-    private TextView mResultMessage;
-    private TextView mOrderId;
-    private TextView mCusomerName;
-    private TextView mOrderDate;
-    private TextView mOrderStatus;
-    private Button mButtonChangeStatus;
 
     public static ShippingFragment newInstance() { return new ShippingFragment(); }
 
@@ -33,63 +27,60 @@ public class ShippingFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_shipping, container, false);
-        mResultMessage = (TextView) root.findViewById(R.id.result_message);
-        mOrderId = (TextView) root.findViewById(R.id.order_id);
-        mCusomerName = (TextView) root.findViewById(R.id.customer_name);
-        mOrderDate = (TextView) root.findViewById(R.id.order_date);
-        mOrderStatus = (TextView) root.findViewById(R.id.order_status);
-        mButtonChangeStatus = (Button) root.findViewById(R.id.button_change_status);
-
         // ビューモデルのインスタンスを取得(ViewModelはViewModelProviderを介してインスタンス取得する。@Injectでのインジェクションはエラーになる)
-        mShippingViewModel = new ViewModelProvider(this.getActivity()).get(ShippingViewModel.class);
-        // ビューモデルのshippingUIを監視して、変更をUIに反映させる。（変更またはLifecycleイベントで反応）
-        mShippingViewModel.getShippingUI().observe(getViewLifecycleOwner(), shippingUI -> updateShippingUI(shippingUI));
+        ShippingViewModel shippingViewModel = new ViewModelProvider(this.getActivity()).get(ShippingViewModel.class);
 
-        // ステータス更新ボタン押下時
-        mButtonChangeStatus.setOnClickListener(v ->  {
-            // ステータス更新処理
-        });
+        // DataBindingでバインドする
+        FragmentShippingBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_shipping, container, false);
+        // レイアウトXMLでViewModelを使うために変数にセットしておく
+        binding.setShippingViewModel(shippingViewModel);
+        // LiveDataで変更を監視するためのLifecycleOwnerのセット
+        binding.setLifecycleOwner(getViewLifecycleOwner());
 
-        return root;
+        return binding.getRoot();
     }
 
-    public void updateShippingUI(ShippingUI shippingUI) {
-        // shippingUIで受け取ったフィールドををFragmentに反映させる
-        mResultMessage.setText(getResultMessage(shippingUI.getShippingConfirmResult()));
-        mOrderId.setText(shippingUI.getOrderId()==null ? "" : shippingUI.getOrderId());
-        mCusomerName.setText(shippingUI.getCustomerName()==null ? "" : shippingUI.getCustomerName());
-        mOrderDate.setText(shippingUI.getOrderDate()==null ? "" : shippingUI.getOrderDate().toString());
-        mOrderStatus.setText(shippingUI.getOrderStatus()==null ? "" : shippingUI.getOrderStatus().getText());
-        mButtonChangeStatus.setText(getButtonText(shippingUI.getShippingOperation()));
-        mButtonChangeStatus.setVisibility(getButtonText(shippingUI.getShippingOperation())==R.string.empty ? View.INVISIBLE : View.VISIBLE);
-    }
-
-    private int getResultMessage(ShippingConfirmResult shippingConfirmResult) {
+    @BindingAdapter("android:text")
+    public static void setText(TextView textView, ShippingConfirmResult shippingConfirmResult) {
         // 確認結果によりメッセージを返す
+        if(shippingConfirmResult == null) {
+            textView.setText(R.string.empty);
+            return;
+        }
         switch (shippingConfirmResult) {
             case SHIPPING:
-                return R.string.result_message_shipping;
+                textView.setText(R.string.result_message_shipping);
+                break;
             case SHIPPED:
-                return R.string.result_message_shipped;
+                textView.setText(R.string.result_message_shipped);
+                break;
             case CANCELED:
-                return R.string.result_message_canceled;
+                textView.setText(R.string.result_message_canceled);
+                break;
             case NO_DATA_FOUND:
+                textView.setText(R.string.result_message_no_data_found);
             default:
-                return R.string.result_message_no_data_found;
+                textView.setText(R.string.empty);
         }
     }
 
-    private int getButtonText(ShippingOperation shippingOperation) {
+    @BindingAdapter("android:text")
+    public static void setText(Button button, ShippingOperation shippingOperation) {
         // 確認結果によりボタンテキストを返す
+        if(shippingOperation == null) {
+            button.setText(R.string.empty);
+            return;
+        }
         switch (shippingOperation) {
             case SHIP:
-                return R.string.button_change_status_shipped;
+                button.setText(R.string.button_change_status_shipped);
+                break;
             case CANCEL_SHIPPING:
-                return R.string.button_change_status_cancel;
+                button.setText(R.string.button_change_status_cancel);
+                break;
             case NONE:
             default:
-                return R.string.empty;
+                button.setText(R.string.empty);
         }
     }
 }

@@ -5,56 +5,44 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import com.example.shippingapp.R;
-
-import dagger.hilt.android.AndroidEntryPoint;
+import com.example.shippingapp.databinding.FragmentEntryOrderIdBinding;
 
 public class EntryOrderIdFragment extends Fragment {
-    private static final String CURRENT_ORDER_ID = "CURRENT_ORDER_ID";
-
-    private EditText mEditOrderId;
-    private Button mButtonConfirm;
 
     public static EntryOrderIdFragment newInstance() { return new EntryOrderIdFragment(); }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_entry_order_id, container, false);
-        mEditOrderId = (EditText) root.findViewById(R.id.edit_order_id);
-        mButtonConfirm = (Button) root.findViewById(R.id.button_confirm);
+        // ビューモデルのインスタンスを取得(ViewModelはViewModelProviderを介してインスタンス取得する。@Injectでのインジェクションはエラーになる)
+        ShippingViewModel shippingViewModel = new ViewModelProvider(this.getActivity()).get(ShippingViewModel.class);
 
-        // 確認ボタン押下時
-        mButtonConfirm.setOnClickListener(v -> {
+        // DataBindingでバインドする
+        FragmentEntryOrderIdBinding binding = DataBindingUtil.inflate(inflater, R.layout.fragment_entry_order_id, container, false);
+        // レイアウトXMLでViewModelを使うために変数にセットしておく
+        binding.setShippingViewModel(shippingViewModel);
+        // LiveDataで変更を監視するためのLifecycleOwnerのセット
+        binding.setLifecycleOwner(getViewLifecycleOwner());
+
+        // 確認ボタン押下時（レイアウトxmlから直接getOrderを呼ぶこともできるが、ソフトキーボードをここで閉じたいので）
+        binding.setOnButtonConfirmClick(v -> {
             // ソフトキーボードを閉じる
             hideSoftKeyboard(v);
-
             // 受注を取得
-            ShippingActivity shippingActivity = (ShippingActivity) getActivity();
-            shippingActivity.getOrder(mEditOrderId.getText().toString());
+            shippingViewModel.getOrder();
         });
 
-        if(savedInstanceState != null) {
-            mEditOrderId.setText(savedInstanceState.getString(CURRENT_ORDER_ID), EditText.BufferType.NORMAL);
-        }
-
-        return root;
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        outState.putString(CURRENT_ORDER_ID, mEditOrderId.getText().toString());
-        super.onSaveInstanceState(outState);
+        return binding.getRoot();
     }
 
     private void hideSoftKeyboard(View view) {
