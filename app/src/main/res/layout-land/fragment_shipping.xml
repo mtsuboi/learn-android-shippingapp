@@ -136,7 +136,7 @@
             android:onClick="onClick"
             android:text="@{shippingViewModel.shippingUI.shippingOperation}"
             android:textSize="24sp"
-            android:visibility="@{ShippingOperation.NONE.equals(shippingViewModel.shippingUI.shippingOperation) ? View.INVISIBLE : View.VISIBLE}"
+            android:visibility="@{shippingViewModel.shippingUI.shippingOperation}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"

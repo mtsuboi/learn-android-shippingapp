@@ -21,8 +21,6 @@ import com.example.shippingapp.databinding.FragmentShippingBinding;
 
 public class ShippingFragment extends Fragment {
 
-    public static ShippingFragment newInstance() { return new ShippingFragment(); }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -59,6 +57,7 @@ public class ShippingFragment extends Fragment {
                 break;
             case NO_DATA_FOUND:
                 textView.setText(R.string.result_message_no_data_found);
+                break;
             default:
                 textView.setText(R.string.empty);
         }
@@ -81,6 +80,24 @@ public class ShippingFragment extends Fragment {
             case NONE:
             default:
                 button.setText(R.string.empty);
+        }
+    }
+
+    @BindingAdapter("android:visibility")
+    public static void setVisibility(Button button, ShippingOperation shippingOperation) {
+        // 確認結果によりボタンの表示・非表示を返す
+        if(shippingOperation == null) {
+            button.setVisibility(View.INVISIBLE);
+            return;
+        }
+        switch (shippingOperation) {
+            case SHIP:
+            case CANCEL_SHIPPING:
+                button.setVisibility(View.VISIBLE);
+                break;
+            case NONE:
+            default:
+                button.setVisibility(View.INVISIBLE);
         }
     }
 }

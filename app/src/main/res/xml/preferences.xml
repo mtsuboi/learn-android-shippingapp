@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <EditTextPreference
+        app:key="server_url"
+        app:singleLine="true"
+        app:title="@string/preference_server_url_label" />
+    <EditTextPreference
+        app:key="user_name"
+        app:singleLine="true"
+        app:title="@string/preference_user_label" />
+    <EditTextPreference
+        app:key="password"
+        app:singleLine="true"
+        app:title="@string/preference_password_label" />
+</androidx.preference.PreferenceScreen>

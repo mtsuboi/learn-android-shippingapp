@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ShippingApp</string>
+    <string name="app_name">出荷管理</string>
     <string name="empty"></string>
     <string name="order_id_message">受注IDを入力してください</string>
     <string name="button_confirm">確認</string>
@@ -14,6 +14,10 @@
     <string name="order_status_label">ステータス</string>
     <string name="button_change_status_shipped">出荷完了</string>
     <string name="button_change_status_cancel">出荷取消</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_preferences">設定</string>
+    <!-- Preferences -->
+    <string name="preference_server_url_label">サーバーURL</string>
+    <string name="preference_user_label">ユーザーID</string>
+    <string name="preference_password_label">パスワード</string>
+
 </resources>

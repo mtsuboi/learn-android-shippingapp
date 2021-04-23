@@ -19,8 +19,6 @@ import com.example.shippingapp.databinding.FragmentEntryOrderIdBinding;
 
 public class EntryOrderIdFragment extends Fragment {
 
-    public static EntryOrderIdFragment newInstance() { return new EntryOrderIdFragment(); }
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
