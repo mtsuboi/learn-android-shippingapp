@@ -23,6 +23,10 @@ public class LocalDateJsonAdapter extends JsonAdapter<LocalDate> {
 
     @Override
     public void toJson(JsonWriter writer, @javax.annotation.Nullable LocalDate value) throws IOException {
-        writer.value(value.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        if(value == null) {
+            writer.value((String) null);
+        } else {
+            writer.value(value.format(DateTimeFormatter.ISO_LOCAL_DATE));
+        }
     }
 }

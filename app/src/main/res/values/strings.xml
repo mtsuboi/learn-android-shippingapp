@@ -5,7 +5,7 @@
     <string name="button_confirm">確認</string>
     <string name="result_message_empty"></string>
     <string name="result_message_shipping">出荷したらボタンをタップ！</string>
-    <string name="result_message_shipped">出荷済み。取り消しますか？</string>
+    <string name="result_message_shipped">出荷済みです</string>
     <string name="result_message_canceled">キャンセル済みです</string>
     <string name="result_message_no_data_found">エラーか受注が見つかりません</string>
     <string name="order_id_label">受注ID</string>

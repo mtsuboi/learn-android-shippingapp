@@ -1,13 +1,18 @@
 package com.example.shippingapp.shipping;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.shippingapp.constraints.OrderStatus;
 import com.example.shippingapp.constraints.ShippingConfirmResult;
 import com.example.shippingapp.constraints.ShippingOperation;
 import com.example.shippingapp.model.Order;
 import com.example.shippingapp.network.OrderAccess;
+
+import java.time.LocalDate;
 
 import javax.inject.Inject;
 
@@ -44,7 +49,7 @@ public class ShippingViewModel extends ViewModel {
                 // 検索した受注を表示するUIモデルをLiveDataにセット
                 mShippingUI.setValue(showOrder(order));
             }, throwable -> { // onError（throwableを受信）
-                mShippingUI.setValue(showError());
+                mShippingUI.setValue(showOrderError());
             });
     }
 
@@ -80,7 +85,7 @@ public class ShippingViewModel extends ViewModel {
         return shippingUI;
     }
 
-    private ShippingUI showError() {
+    private ShippingUI showOrderError() {
         ShippingUI shippingUI = new ShippingUI();
 
         // 確認結果：エラー（またはデータなし）⇒オペレーション：なし
@@ -88,6 +93,54 @@ public class ShippingViewModel extends ViewModel {
         shippingUI.setShippingOperation(ShippingOperation.NONE);
 
         return shippingUI;
+    }
+
+    // ステータスを更新
+    public void changeStatus() {
+        // ステータス更新を呼び出す
+        mOrderAccess.changeStatus(makeOrderForChangeStatus())
+            .flatMap(count -> {
+                // 更新できたら受注を検索
+                if(count > 0) {
+                    return mOrderAccess.findById(mEntryOrderId.getValue());
+                } else {
+                    mShippingUI.setValue(showOrderError());
+                    return null;
+                }
+            })
+            .subscribeOn(Schedulers.io()) // 送信側はスレッドプールで処理する
+            .observeOn(AndroidSchedulers.mainThread()) // 受信側はメインスレッドで処理する
+            .doOnSubscribe(disposable -> mLoading.setValue(true)) // 開始時にローディングインジケータ表示
+            .doFinally(() -> mLoading.setValue(false)) // 終了時にローディングインジケーター非表示
+            // 開始
+            .subscribe(order -> { // onSuccess（orderを受信）
+                // 検索した受注を表示するUIモデルをLiveDataにセット
+                mShippingUI.setValue(showOrder(order));
+            }, throwable -> { // onError（throwableを受信）
+                throwable.printStackTrace();
+                mShippingUI.setValue(showOrderError());
+            });
+    }
+
+    private Order makeOrderForChangeStatus() {
+        // ステータス更新用のOrderオブジェクトを作る
+        Order order = new Order();
+        order.setOrderId(mShippingUI.getValue().getOrderId());
+        switch (mShippingUI.getValue().getShippingOperation()) {
+            case SHIP:
+                // オペレーション：出荷⇒ステータス：出荷済、出荷日：当日
+                order.setOrderStatus(OrderStatus.SHIPPED);
+                order.setShipDate(LocalDate.now());
+                break;
+            case CANCEL_SHIPPING:
+                // オペレーション：出荷取消⇒ステータス：出荷中
+                order.setOrderStatus(OrderStatus.SHIPPING);
+                break;
+            default:
+                // それ以外は想定外のためエラー
+                mShippingUI.setValue(showOrderError());
+        }
+        return order;
     }
 
     // 単方向データバインディングの場合はLiveDataで渡す
