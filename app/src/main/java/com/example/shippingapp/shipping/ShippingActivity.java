@@ -13,10 +13,7 @@ import android.view.MenuItem;
 
 import com.example.shippingapp.R;
 import com.example.shippingapp.databinding.ActivityShippingBinding;
-import com.example.shippingapp.network.HttpRequestInterceptor;
 import com.example.shippingapp.preferences.PreferencesActivity;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
